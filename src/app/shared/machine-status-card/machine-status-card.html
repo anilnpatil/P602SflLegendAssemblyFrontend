@@ -1,0 +1,86 @@
+<article class="machine-card">
+  <div class="machine-card__heading">
+    <h2 class="machine-card__title">{{ machine().entityName }}</h2>
+    <span class="machine-card__barcode-label">QR Code NO</span>
+    <span
+      class="barcode-chip"
+      [class.barcode-chip--waiting]="!machine().barcode"
+      [attr.aria-label]="machine().barcode ? 'QR code ' + machine().barcode : 'Waiting for QR code'"
+    >
+      {{ machine().barcode || 'Waiting for barcode' }}
+    </span>
+  </div>
+
+  <div
+    class="machine-card__operations"
+    [class.machine-card__operations--stacked]="machine().machineCode === '30B' || machine().machineCode === '40B'"
+    aria-label="Live measurements and operation status"
+  >
+    @for (operation of operations(); track operation.name) {
+      <section class="machine-operation" [attr.aria-label]="operation.name">
+        <div class="machine-measurement">
+          <span>{{ operation.minLabel }}</span>
+          <strong>{{ operation.min ?? '—' }}</strong>
+        </div>
+        <div class="machine-measurement">
+          <span>{{ operation.actualLabel }}</span>
+          <strong>{{ operation.actual ?? '—' }}</strong>
+        </div>
+        <div class="machine-measurement">
+          <span>{{ operation.maxLabel }}</span>
+          <strong>{{ operation.max ?? '—' }}</strong>
+        </div>
+        <div class="machine-operation__status">
+          <span>{{ operation.statusLabel }}</span>
+          @switch (operation.status) {
+            @case (1) {
+              <span class="operation-status operation-status--pass" aria-label="Pass">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="m4 10 4 4 8-9" />
+                </svg>
+              </span>
+            }
+            @case (2) {
+              <span class="operation-status operation-status--fail" aria-label="Fail">
+                <svg viewBox="0 0 20 20" aria-hidden="true">
+                  <path d="m5 5 10 10m0-10L5 15" />
+                </svg>
+              </span>
+            }
+            @default {
+              <span class="operation-status operation-status--unknown" aria-label="Status not available">
+                —
+              </span>
+            }
+          }
+        </div>
+      </section>
+    }
+  </div>
+
+  <footer class="machine-card__footer" aria-label="Final status">
+    @switch (machine().finalStatus) {
+      @case (1) {
+        <span class="machine-status machine-status--ok" aria-label="Final status OK">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="m4 10 4 4 8-9" />
+          </svg>
+          OK
+        </span>
+      }
+      @case (2) {
+        <span class="machine-status machine-status--not-ok" aria-label="Final status not OK">
+          <svg viewBox="0 0 20 20" aria-hidden="true">
+            <path d="m5 5 10 10m0-10L5 15" />
+          </svg>
+          FAIL
+        </span>
+      }
+      @default {
+        <span class="machine-status machine-status--unknown" aria-label="Final status not available">
+          NA
+        </span>
+      }
+    }
+  </footer>
+</article>

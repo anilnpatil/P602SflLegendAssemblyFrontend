@@ -1,0 +1,59 @@
+<div
+  class="app-shell"
+  [class.app-shell--sidebar-collapsed]="isSidebarCollapsed()"
+>
+  <app-header
+    [menuExpanded]="!isSidebarCollapsed() || isMobileNavOpen()"
+    (menuToggle)="toggleNavigation()"
+  />
+
+  <app-sidebar
+    [navigation]="navigation"
+    [activePage]="activePage()"
+    [collapsed]="isSidebarCollapsed()"
+    [mobileOpen]="isMobileNavOpen()"
+    (pageSelected)="selectPage($event)"
+  />
+
+  @if (isMobileNavOpen()) {
+    <button
+      class="sidebar-backdrop"
+      type="button"
+      aria-label="Close navigation menu"
+      (click)="closeMobileNav()"
+    ></button>
+  }
+
+  <main class="workspace" [class.workspace--assembly]="activePage().label === 'Assembly'">
+    <div class="workspace__content">
+      @switch (activePage().label) {
+        @case ('Dashboard') {
+          <app-dashboard-page
+            [page]="activePage()"
+            [navigation]="navigation"
+            (pageSelected)="selectPage($event)"
+          />
+        }
+        @case ('Assembly') {
+          <app-assembly-page />
+        }
+        @case ('Production') {
+          <app-production-page />
+        }
+        @case ('Quality') {
+          <app-quality-page />
+        }
+        @case ('Reports') {
+          <app-reports-page />
+        }
+        @case ('Settings') {
+          <app-settings-page
+            [theme]="themeService.preference()"
+            (themeChange)="selectTheme($event)"
+          />
+        }
+      }
+      <app-footer />
+    </div>
+  </main>
+</div>

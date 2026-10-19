@@ -1,0 +1,24 @@
+.workspace-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: auto;
+  padding-top: 32px;
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: 0.11em;
+}
+
+.workspace-footer__dot {
+  width: 3px;
+  height: 3px;
+  background: var(--color-text-subtle);
+  border-radius: 50%;
+}
+
+.workspace-footer__copyright {
+  margin-left: auto;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}

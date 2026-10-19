@@ -1,1 +1,129 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  color-scheme: light dark;
+  --color-brand: #20399a;
+  --color-brand-dark: #182d78;
+  --color-brand-strong: #172d7a;
+  --color-brand-soft: #eef1fb;
+  --color-brand-border: #dce3fa;
+  --color-page: #f5f6fa;
+  --color-surface: #fff;
+  --color-surface-hover: #f8f9fc;
+  --color-text: #29313f;
+  --color-text-muted: #778195;
+  --color-text-subtle: #8993a5;
+  --color-border: #e7eaf0;
+  --color-nav-text: #68738a;
+  --color-badge: #e3e8f8;
+  --color-status-surface: #f8f9fc;
+  --color-status-border: #edf0f5;
+  --color-profile-surface: #e9edfb;
+  --color-icon-muted: #8792a5;
+  --color-shadow: #213d3408;
+  --color-focus: #8da4ed;
+  --color-overlay: #13231f66;
+  --machine-card-ink: #111820;
+  --machine-card-title-bg: #fffde4;
+  --machine-card-header-bg: #d5d5d5;
+  --machine-card-value-bg: #f7f7f7;
+  --machine-card-border: #d9d9d9;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-brand: #aebeff;
+  --color-brand-dark: #d1d9ff;
+  --color-brand-strong: #c2ceff;
+  --color-brand-soft: #283354;
+  --color-brand-border: #455789;
+  --color-page: #111722;
+  --color-surface: #1b2432;
+  --color-surface-hover: #222e40;
+  --color-text: #e6eaf2;
+  --color-text-muted: #a8b2c4;
+  --color-text-subtle: #929eb3;
+  --color-border: #344052;
+  --color-nav-text: #bac3d3;
+  --color-badge: #303d59;
+  --color-status-surface: #202a39;
+  --color-status-border: #344052;
+  --color-profile-surface: #283354;
+  --color-icon-muted: #a8b2c4;
+  --color-shadow: #00000030;
+  --color-focus: #9eb1ff;
+  --color-overlay: #030712b8;
+  --machine-card-ink: #f1f4f8;
+  --machine-card-title-bg: #283354;
+  --machine-card-header-bg: #303d59;
+  --machine-card-value-bg: #222e40;
+  --machine-card-border: #45536a;
+}
+
+:root[data-theme='automatic'] {
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme='automatic'] {
+    --color-brand: #aebeff;
+    --color-brand-dark: #d1d9ff;
+    --color-brand-strong: #c2ceff;
+    --color-brand-soft: #283354;
+    --color-brand-border: #455789;
+    --color-page: #111722;
+    --color-surface: #1b2432;
+    --color-surface-hover: #222e40;
+    --color-text: #e6eaf2;
+    --color-text-muted: #a8b2c4;
+    --color-text-subtle: #929eb3;
+    --color-border: #344052;
+    --color-nav-text: #bac3d3;
+    --color-badge: #303d59;
+    --color-status-surface: #202a39;
+    --color-status-border: #344052;
+    --color-profile-surface: #283354;
+    --color-icon-muted: #a8b2c4;
+    --color-shadow: #00000030;
+    --color-focus: #9eb1ff;
+    --color-overlay: #030712b8;
+    --machine-card-ink: #f1f4f8;
+    --machine-card-title-bg: #283354;
+    --machine-card-header-bg: #303d59;
+    --machine-card-value-bg: #222e40;
+    --machine-card-border: #45536a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--color-page);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--color-text);
+  font-family:
+    Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 3px;
+}

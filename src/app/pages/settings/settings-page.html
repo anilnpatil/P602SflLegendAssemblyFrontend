@@ -1,0 +1,55 @@
+<div class="breadcrumb">
+  <span>Workspace</span>
+  <svg viewBox="0 0 16 16" aria-hidden="true">
+    <path d="m6 3 5 5-5 5" />
+  </svg>
+  <span class="breadcrumb__current">Settings</span>
+</div>
+
+<section class="settings-heading">
+  <span class="eyebrow">P602 · PREFERENCES</span>
+  <h1>Settings</h1>
+  <p>Customize the appearance of your workspace.</p>
+</section>
+
+<section class="settings-card" aria-labelledby="appearance-title">
+  <div class="settings-card__heading">
+    <div class="settings-card__icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.88 9.88 1.42 1.42M3 12h2m14 0h2M5.64 18.36l1.42-1.42m9.88-9.88 1.42-1.42M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
+      </svg>
+    </div>
+    <div>
+      <h2 id="appearance-title">Appearance</h2>
+      <p>Choose how Legend Assembly looks on this device.</p>
+    </div>
+  </div>
+
+  <fieldset class="theme-options">
+    <legend class="visually-hidden">Select a theme</legend>
+    @for (option of themeOptions; track option.value) {
+      <label
+        class="theme-option"
+        [class.theme-option--selected]="theme() === option.value"
+      >
+        <input
+          type="radio"
+          name="theme"
+          [value]="option.value"
+          [checked]="theme() === option.value"
+          (change)="themeChange.emit(option.value)"
+        />
+        <span class="theme-option__icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path [attr.d]="option.icon" />
+          </svg>
+        </span>
+        <span class="theme-option__copy">
+          <span class="theme-option__label">{{ option.label }}</span>
+          <span class="theme-option__description">{{ option.description }}</span>
+        </span>
+        <span class="theme-option__radio" aria-hidden="true"></span>
+      </label>
+    }
+  </fieldset>
+</section>

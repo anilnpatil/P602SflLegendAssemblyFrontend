@@ -1,0 +1,43 @@
+<section class="welcome-panel" aria-labelledby="page-title">
+  <div class="welcome-panel__copy">
+    <span class="eyebrow">P602 · SFL LEGEND ASSEMBLY</span>
+    <h1 id="page-title">{{ page().label }}</h1>
+    <p>Welcome to your production workspace. Choose a workspace below to view live assembly data, production activity, quality information, reports, or settings.</p>
+  </div>
+  <div class="welcome-panel__art" aria-hidden="true">
+    <div class="welcome-panel__core">
+      <svg viewBox="0 0 72 72" fill="none">
+        <path d="M12 58V30l12 6V20l12 7V11h24v47H12Z" />
+        <path d="M24 47h.01M36 47h.01M48 47h.01M24 58v-5m12 5v-5m12 5v-5" />
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="workspace-links" aria-labelledby="workspace-links-title">
+  <div class="workspace-links__heading">
+    <span class="eyebrow eyebrow--muted">YOUR WORKSPACE</span>
+    <h2 id="workspace-links-title">Where would you like to go?</h2>
+    <p>Select a workspace to open its dedicated page.</p>
+  </div>
+  <div class="workspace-links__grid">
+    @for (item of navigation(); track item.label) {
+      @if (item.label !== 'Dashboard') {
+        <button class="workspace-link" type="button" (click)="pageSelected.emit(item)">
+          <span class="workspace-link__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path [attr.d]="item.icon" />
+            </svg>
+          </span>
+          <span class="workspace-link__copy">
+            <strong>{{ item.label }}</strong>
+            <span>{{ item.description }}</span>
+          </span>
+          <svg class="workspace-link__arrow" viewBox="0 0 20 20" aria-hidden="true">
+            <path d="M4 10h12m-5-5 5 5-5 5" />
+          </svg>
+        </button>
+      }
+    }
+  </div>
+</section>

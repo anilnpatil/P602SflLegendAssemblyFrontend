@@ -1,0 +1,36 @@
+<header class="topbar">
+  <button
+    class="menu-toggle"
+    type="button"
+    (click)="menuToggle.emit()"
+    [attr.aria-expanded]="menuExpanded()"
+    aria-controls="primary-navigation"
+    aria-label="Toggle navigation menu"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  </button>
+
+  <a class="brand" routerLink="/" aria-label="TVS home">
+    <img
+      class="brand__logo"
+      ngSrc="branding/left-logo.png"
+      width="29"
+      height="34"
+      priority
+      alt="TVS"
+    />
+  </a>
+
+  <h1 class="topbar__title">SFL LEGEND ASSEMBLY</h1>
+
+  <img
+    class="brand__logo brand__logo--right"
+    ngSrc="branding/right-logo.png"
+    width="120"
+    height="28"
+    priority
+    alt="NextFirst"
+  />
+</header>

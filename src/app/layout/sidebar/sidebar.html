@@ -1,0 +1,52 @@
+<aside
+  class="sidebar"
+  [class.sidebar--collapsed]="collapsed()"
+  [class.sidebar--mobile-open]="mobileOpen()"
+  id="primary-navigation"
+  aria-label="Main navigation"
+>
+  <div class="sidebar__section-label">WORKSPACE</div>
+  <nav class="primary-nav">
+    @for (item of navigation(); track item.label) {
+      <button
+        class="nav-link"
+        [class.nav-link--active]="activePage().label === item.label"
+        [attr.aria-current]="activePage().label === item.label ? 'page' : null"
+        [attr.aria-label]="item.label"
+        [title]="collapsed() ? item.label : null"
+        type="button"
+        (click)="pageSelected.emit(item)"
+      >
+        <svg class="nav-link__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path [attr.d]="item.icon" />
+        </svg>
+        <span class="nav-link__label">{{ item.label }}</span>
+        @if (item.label === 'Assembly') {
+          <span class="nav-link__badge">03</span>
+        }
+      </button>
+    }
+  </nav>
+
+  <div class="sidebar__bottom">
+    <div class="system-status">
+      <span class="system-status__indicator" aria-hidden="true"></span>
+      <span class="system-status__copy">
+        <span class="system-status__title">System online</span>
+        <span class="system-status__detail">All services operational</span>
+      </span>
+    </div>
+    <div class="user-profile">
+      <span class="user-profile__avatar" aria-hidden="true">OP</span>
+      <span class="user-profile__copy">
+        <span class="user-profile__name">Operator</span>
+        <span class="user-profile__role">Production team</span>
+      </span>
+      <svg class="user-profile__more" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="5" cy="12" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="19" cy="12" r="1" />
+      </svg>
+    </div>
+  </div>
+</aside>
