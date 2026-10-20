@@ -49,6 +49,17 @@
   white-space: nowrap;
 }
 
+.machine-card__title--interactive {
+  width: 100%;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.machine-card__title--interactive:hover {
+  color: var(--color-brand);
+  border-color: var(--color-brand);
+}
+
 .machine-card__barcode-label {
   color: var(--machine-card-ink);
   background: var(--machine-card-header-bg);

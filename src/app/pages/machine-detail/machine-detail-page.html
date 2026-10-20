@@ -1,0 +1,179 @@
+<section class="machine-live-page" aria-labelledby="machine-detail-title">
+  <div class="machine-live-topbar">
+    <h1 id="machine-detail-title" class="machine-live-name">{{ machine().entityName }}</h1>
+    <div class="machine-live-current-shift">
+      <span>Current Shift</span>
+      <strong>{{ machine().shift ?? '—' }}</strong>
+    </div>
+    <span class="machine-live-label">QR Code NO</span>
+    <strong class="machine-live-value">{{ machine().barcode || '—' }}</strong>
+    <strong
+      class="machine-live-status"
+      [class.machine-live-status--ok]="machine().finalStatus === 1"
+      [class.machine-live-status--reject]="machine().finalStatus === 2"
+    >
+      {{ statusLabel(machine().finalStatus) }}
+    </strong>
+    <button
+      class="machine-back-button"
+      type="button"
+      aria-label="Back to all machines"
+      title="Back to all machines"
+      (click)="back.emit()"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+    </button>
+  </div>
+
+  <div class="machine-live-controls">
+    <div class="machine-live-summary">
+      <div class="machine-summary-card">
+        <div class="summary-line">
+          <span><strong>Production Count</strong> /Current Shift (Qty)</span>
+          <strong class="summary-value--total">{{ machine().totalPartCount ?? '—' }}</strong>
+        </div>
+        <div class="summary-line">
+          <span><strong>OK Parts</strong> /Current Shift (Qty)</span>
+          <strong class="summary-value--ok">{{ machine().okCount ?? '—' }}</strong>
+        </div>
+        <div class="summary-line">
+          <span><strong>Reject Parts</strong> /Current Shift (Qty)</span>
+          <strong class="summary-value--reject">{{ machine().notOkCount ?? '—' }}</strong>
+        </div>
+      </div>
+
+      <div class="machine-summary-card">
+        <div class="summary-line">
+          <span><strong>Machine START Time</strong> /Current Shift</span>
+          <strong>{{ machine().cycleStartTime ? (machine().cycleStartTime | date: 'HH:mm:ss') : '—' }}</strong>
+        </div>
+        <div class="summary-line">
+          <span><strong>Machine END Time</strong> /Current Shift</span>
+          <strong>{{ machine().cycleEndTime ? (machine().cycleEndTime | date: 'HH:mm:ss') : '—' }}</strong>
+        </div>
+        <div class="summary-line">
+          <span><strong>CYCLE Time</strong> /Current Part</span>
+          <strong>{{ machine().cycleTime ?? '—' }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="machine-report-controls">
+      <section class="report-card" aria-labelledby="part-report-title">
+        <h2 id="part-report-title">Part Report Generate</h2>
+        <div class="report-card__form">
+          <input #partIdInput type="text" placeholder="Part ID / Barcode" aria-label="Part ID or barcode" />
+          <button
+            type="button"
+            [disabled]="reportLoading()"
+            (click)="generatePartReport(partIdInput.value)"
+          >
+            Submit
+          </button>
+        </div>
+      </section>
+
+      <section class="report-card" aria-labelledby="date-report-title">
+        <h2 id="date-report-title">{{ machine().entityName }} Report Generate</h2>
+        <div class="report-card__form report-card__form--date">
+          <label>
+            <span>Enter a date range</span>
+            <div>
+              <input #startDateInput type="date" aria-label="Report start date" />
+              <span aria-hidden="true">–</span>
+              <input #endDateInput type="date" aria-label="Report end date" />
+            </div>
+          </label>
+          <button
+            type="button"
+            [disabled]="reportLoading()"
+            (click)="generateDateRangeReport(startDateInput.value, endDateInput.value)"
+          >
+            Submit
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div class="machine-report-toolbar">
+      <label class="refresh-mode">
+        <span class="visually-hidden">Refresh mode</span>
+        <select [value]="refreshMode()" (change)="updateRefreshMode($event)">
+          <option value="auto">Auto Refresh </option>
+          <option value="manual">Manual Refresh</option>
+        </select>
+      </label>
+      <button type="button" (click)="refreshData()">Refresh Now</button>
+      <button type="button" [disabled]="!reportRows().length" (click)="downloadReport()">
+        Download Report
+      </button>
+      <label class="shift-filter">
+        <span class="visually-hidden">Filter by shift</span>
+        <select [value]="selectedShift()" (change)="updateShift($event)">
+          <option value="current">Current Shift</option>
+          <option value="all">All Shifts</option>
+          <option value="1">Shift 1</option>
+          <option value="2">Shift 2</option>
+          <option value="3">Shift 3</option>
+        </select>
+      </label>
+      <span class="last-updated">
+        Last updated {{ lastUpdated() ? (lastUpdated() | date: 'HH:mm:ss') : '—' }}
+      </span>
+    </div>
+  </div>
+
+  @if (reportError(); as error) {
+    <p class="report-message report-message--error" role="alert">{{ error }}</p>
+  }
+  @if (reportLoading()) {
+    <p class="report-message" role="status">Loading machine data…</p>
+  }
+
+  <section class="machine-report-table-wrap" aria-label="Machine report data">
+    <table class="machine-report-table">
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Time</th>
+          <th scope="col">Component Barcode</th>
+          <th scope="col">Machine Name</th>
+          <th scope="col">Shift</th>
+          <th scope="col">Production Status</th>
+          @for (operation of operations(); track operation.name) {
+            <th scope="col">{{ operation.name }} Min ({{ operation.unit }})</th>
+            <th scope="col">{{ operation.name }} Actual ({{ operation.unit }})</th>
+            <th scope="col">{{ operation.name }} Max ({{ operation.unit }})</th>
+            <th scope="col">{{ operation.name }} Status</th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of reportRows(); track row.id ?? row.barcode) {
+          <tr>
+            <td>{{ row.cycleStartTime ? (row.cycleStartTime | date: 'd-M-yyyy') : '—' }}</td>
+            <td>{{ row.cycleStartTime ? (row.cycleStartTime | date: 'HH:mm:ss') : '—' }}</td>
+            <td>{{ row.barcode || '—' }}</td>
+            <td>{{ row.entityName }}</td>
+            <td>{{ row.shift ?? '—' }}</td>
+            <td>{{ statusLabel(row.finalStatus) }}</td>
+            @for (operation of operationsFor(row); track operation.name) {
+              <td>{{ operation.min ?? '—' }}</td>
+              <td>{{ operation.actual ?? '—' }}</td>
+              <td>{{ operation.max ?? '—' }}</td>
+              <td>{{ statusLabel(operation.status) }}</td>
+            }
+          </tr>
+        } @empty {
+          <tr>
+            <td [attr.colspan]="6 + operations().length * 4" class="table-empty">
+              No machine records found.
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </section>
+</section>

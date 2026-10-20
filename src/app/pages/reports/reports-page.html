@@ -1,15 +1,201 @@
-<section class="section-page" aria-labelledby="reports-title">
-  <span class="section-page__eyebrow">P602 · WORKSPACE</span>
-  <h1 id="reports-title">Reports</h1>
-  <p class="section-page__description">
-    Reports has its own workspace. Production summaries, trends, and downloadable reports can be
-    maintained here independently from Assembly.
-  </p>
-  <div class="section-page__panel">
-    <span class="section-page__icon" aria-hidden="true">R</span>
-    <div>
-      <h2>Reports workspace</h2>
-      <p>This page is ready for reporting tools and data.</p>
+<section class="overall-report" aria-labelledby="overall-report-title">
+  <form
+    class="report-filter-card"
+    aria-labelledby="overall-report-title"
+    (submit)="$event.preventDefault(); generateReport(barcodeInput.value, startDateInput.value, endDateInput.value)"
+  >
+    <div class="report-filter-card__heading">
+      <div>
+        <span class="filter-eyebrow">REPORT FILTERS</span>
+        <h1 id="overall-report-title">Overall component report</h1>
+      </div>
+      <span class="completion-note">
+        <span aria-hidden="true"></span>
+        Completed components only
+      </span>
     </div>
-  </div>
+
+    <div class="report-filters">
+      <label class="filter-field filter-field--side">
+        <span>Component side</span>
+        <select [value]="side()" (change)="updateSide($event)">
+          <option value="BOTH">Combined · LH + RH</option>
+          <option value="LH">Left hand · LH</option>
+          <option value="RH">Right hand · RH</option>
+        </select>
+      </label>
+
+      <label class="filter-field filter-field--barcode">
+        <span>Barcode search</span>
+        <span class="barcode-input">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="10.8" cy="10.8" r="6.8" />
+            <path d="m16 16 4.5 4.5" />
+          </svg>
+          <input #barcodeInput type="search" placeholder="Enter a completed part barcode" />
+        </span>
+      </label>
+
+      <label class="filter-field filter-field--date">
+        <span>From date</span>
+        <input
+          #startDateInput
+          type="date"
+          [value]="startDate()"
+          (change)="updateDate($event, 'start')"
+        />
+      </label>
+
+      <label class="filter-field filter-field--date">
+        <span>To date</span>
+        <input
+          #endDateInput
+          type="date"
+          [value]="endDate()"
+          (change)="updateDate($event, 'end')"
+        />
+      </label>
+
+      <label class="filter-field filter-field--shift">
+        <span>Production shift</span>
+        <select [value]="shift()" (change)="updateShift($event)">
+          <option value="ALL">All shifts</option>
+          <option value="1">Shift 1</option>
+          <option value="2">Shift 2</option>
+          <option value="3">Shift 3</option>
+        </select>
+      </label>
+
+      <button class="generate-button" type="submit" [disabled]="loading()">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16M7 12h10m-7 7h4" />
+        </svg>
+        {{ loading() ? 'Loading…' : 'Generate report' }}
+      </button>
+    </div>
+  </form>
+
+  @if (error(); as message) {
+    <p class="report-alert" role="alert">{{ message }}</p>
+  }
+
+  <section class="report-results" aria-labelledby="report-results-title">
+    <div class="results-heading">
+      <div>
+        <span class="filter-eyebrow">ASSEMBLY HISTORY</span>
+        <h2 id="report-results-title">Completed component records</h2>
+      </div>
+      <div class="results-actions">
+        <span class="result-count">
+          <strong>{{ rows().length }}</strong>
+          {{ rows().length === 1 ? 'record' : 'records' }}
+        </span>
+        <button
+          class="download-button"
+          type="button"
+          [disabled]="loading() || rows().length === 0"
+          (click)="downloadReport()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
+          </svg>
+          Download CSV
+        </button>
+      </div>
+    </div>
+
+    <div class="report-table-wrap" role="region" aria-label="Completed component report table" tabindex="0">
+      <table class="overall-report-table">
+        <thead>
+          <tr>
+            <th class="table-sticky-column table-sticky-column--first" rowspan="3" scope="col">Completion Date / Time</th>
+            <th class="table-sticky-column table-sticky-column--second" rowspan="3" scope="col">Barcode</th>
+            <th rowspan="3" scope="col">Side</th>
+            <th rowspan="3" scope="col">Shift</th>
+            <th rowspan="3" scope="col">Production</th>
+            @for (group of machineGroups(); track group.machineCode) {
+              <th
+                class="parameter-group"
+                [class.parameter-group--common]="group.machineCode === '30B' || group.machineCode === '40B'"
+                [attr.colspan]="group.operations.length * 4"
+                scope="colgroup"
+              >
+                {{ group.label }}
+              </th>
+            }
+          </tr>
+          <tr>
+            @for (group of machineGroups(); track group.machineCode) {
+              @for (operation of group.operations; track operation.name) {
+                <th class="parameter-subgroup" colspan="4" scope="colgroup">
+                  {{ operation.name }} <span>({{ operation.unit }})</span>
+                </th>
+              }
+            }
+          </tr>
+          <tr class="parameter-label-row">
+            @for (group of machineGroups(); track group.machineCode) {
+              @for (operation of group.operations; track operation.name) {
+                <th class="parameter-min" scope="col">Min</th>
+                <th class="parameter-actual" scope="col">Actual</th>
+                <th class="parameter-max" scope="col">Max</th>
+                <th class="parameter-status-heading" scope="col">Status</th>
+              }
+            }
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.barcode) {
+            <tr>
+              <td class="table-sticky-column table-sticky-column--first">
+                <span>{{ row.completionTime ? (row.completionTime | date: 'd MMM yyyy') : '—' }}</span>
+                <small>{{ row.completionTime ? (row.completionTime | date: 'HH:mm:ss') : '—' }}</small>
+              </td>
+              <td class="table-sticky-column table-sticky-column--second barcode-cell">{{ row.barcode || '—' }}</td>
+              <td><span class="side-chip">{{ row.componentSide }}</span></td>
+              <td><span class="shift-chip">{{ row.shift ?? '—' }}</span></td>
+              <td>
+                <span
+                  class="production-status"
+                  [class.production-status--ok]="row.finalStatus === 1"
+                  [class.production-status--reject]="row.finalStatus === 2"
+                >{{ statusLabel(row.finalStatus) }}</span>
+              </td>
+              @for (group of machineGroups(); track group.machineCode) {
+                @let station = machineFor(row, group.machineCode);
+                @for (operationName of group.operations; track operationName.name) {
+                  @let value = operationFor(station, operationName.name);
+                  <td class="parameter-min">{{ value?.min ?? '—' }}</td>
+                  <td class="parameter-actual actual-value">{{ value?.actual ?? '—' }}</td>
+                  <td class="parameter-max">{{ value?.max ?? '—' }}</td>
+                  <td class="parameter-status-cell">
+                    @if (value) {
+                      <span
+                        class="parameter-status"
+                        [class.parameter-status--ok]="value.status === 1"
+                        [class.parameter-status--reject]="value.status === 2"
+                      >{{ statusLabel(value.status) }}</span>
+                    } @else {
+                      <span class="not-applicable">—</span>
+                    }
+                  </td>
+                }
+              }
+            </tr>
+          } @empty {
+            <tr>
+              <td class="table-empty" [attr.colspan]="tableColumnCount()">
+                @if (loading()) {
+                  Loading completed component records…
+                } @else {
+                  No completed component records match these filters.
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="table-hint">Scroll horizontally to view all measurement parameters.</p>
+  </section>
 </section>

@@ -1,28 +1,39 @@
-<section class="assembly-heading" aria-labelledby="assembly-title">
-  <div>
-    <span class="eyebrow"><span aria-hidden="true"></span> LIVE PRODUCTION</span>
-    <h1 id="assembly-title">Assembly live details</h1>
-  </div>
-  <div class="assembly-heading__meta">
-    <span class="assembly-heading__refresh">Auto refresh · 5 sec</span>
-    <span class="assembly-heading__updated">
-      Last updated
-      <strong>{{ lastUpdated() ? (lastUpdated() | date: 'mediumTime') : 'Waiting for data' }}</strong>
-    </span>
-  </div>
-</section>
+  @if (selectedMachine(); as machine) {
+    <app-machine-detail-page
+      [machine]="machine"
+      [lastUpdated]="lastUpdated()"
+      (back)="showMachineOverview()"
+      (refresh)="refreshMachineStatuses()"
+    />
+  } @else {
+    <section class="assembly-heading" aria-labelledby="assembly-title">
+      <div>
+        <span class="eyebrow"><span aria-hidden="true"></span> LIVE PRODUCTION</span>
+        <h1 id="assembly-title">Assembly live details</h1>
+      </div>
+      <div class="assembly-heading__meta">
+        <span class="assembly-heading__refresh">Auto refresh · 5 sec</span>
+        <span class="assembly-heading__updated">
+          Last updated
+          <strong>{{ lastUpdated() ? (lastUpdated() | date: 'mediumTime') : 'Waiting for data' }}</strong>
+        </span>
+      </div>
+    </section>
 
-<section class="machine-overview" aria-labelledby="machine-overview-title">
-  
-  @if (loadError(); as error) {
-    <p class="machine-overview__message machine-overview__message--error" role="alert">
-      {{ error }}
-    </p>
+    <section class="machine-overview" aria-labelledby="machine-overview-title">
+      @if (loadError(); as error) {
+        <p class="machine-overview__message machine-overview__message--error" role="alert">
+          {{ error }}
+        </p>
+      }
+
+      <div class="machine-grid" id="machine-overview-title">
+        @for (machine of machineCards(); track machine.machineCode) {
+          <app-machine-status-card
+            [machine]="machine"
+            (machineSelected)="openMachine($event)"
+          />
+        }
+      </div>
+    </section>
   }
-
-  <div class="machine-grid">
-    @for (machine of machineCards(); track machine.machineCode) {
-      <app-machine-status-card [machine]="machine" />
-    }
-  </div>
-</section>

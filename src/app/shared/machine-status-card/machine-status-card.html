@@ -1,6 +1,13 @@
 <article class="machine-card">
   <div class="machine-card__heading">
-    <h2 class="machine-card__title">{{ machine().entityName }}</h2>
+    <button
+      class="machine-card__title machine-card__title--interactive"
+      type="button"
+      (click)="machineSelected.emit(machine())"
+      [attr.aria-label]="'Open details for ' + machine().entityName"
+    >
+      {{ machine().entityName }}
+    </button>
     <span class="machine-card__barcode-label">QR Code NO</span>
     <span
       class="barcode-chip"
@@ -19,19 +26,19 @@
     @for (operation of operations(); track operation.name) {
       <section class="machine-operation" [attr.aria-label]="operation.name">
         <div class="machine-measurement">
-          <span>{{ operation.minLabel }}</span>
+          <span>{{ measurementLabel(operation, 'MIN') }}</span>
           <strong>{{ operation.min ?? '—' }}</strong>
         </div>
         <div class="machine-measurement">
-          <span>{{ operation.actualLabel }}</span>
+          <span>{{ measurementLabel(operation, 'ACTUAL') }}</span>
           <strong>{{ operation.actual ?? '—' }}</strong>
         </div>
         <div class="machine-measurement">
-          <span>{{ operation.maxLabel }}</span>
+          <span>{{ measurementLabel(operation, 'MAX') }}</span>
           <strong>{{ operation.max ?? '—' }}</strong>
         </div>
         <div class="machine-operation__status">
-          <span>{{ operation.statusLabel }}</span>
+          <span>{{ operation.name }} STATUS</span>
           @switch (operation.status) {
             @case (1) {
               <span class="operation-status operation-status--pass" aria-label="Pass">

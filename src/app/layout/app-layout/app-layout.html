@@ -24,7 +24,11 @@
     ></button>
   }
 
-  <main class="workspace" [class.workspace--assembly]="activePage().label === 'Assembly'">
+  <main
+    class="workspace"
+    [class.workspace--assembly]="activePage().label === 'Assembly'"
+    [class.workspace--reports]="activePage().label === 'Reports'"
+  >
     <div class="workspace__content">
       @switch (activePage().label) {
         @case ('Dashboard') {
@@ -53,7 +57,9 @@
           />
         }
       }
-      <app-footer />
+      @if (activePage().label !== 'Assembly' && activePage().label !== 'Reports') {
+        <app-footer />
+      }
     </div>
   </main>
 </div>
