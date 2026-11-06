@@ -60,6 +60,36 @@ export class ReportsPage implements OnInit {
   protected readonly shift = signal('ALL');
   protected readonly startDate = signal(this.localDateString(new Date()));
   protected readonly endDate = signal(this.localDateString(new Date()));
+  protected readonly datePickerOpen = signal(false);
+  protected readonly calendarMonth = signal(new Date());
+  protected readonly dateSelectionStep = signal<'start' | 'end'>('start');
+  protected readonly pendingStartDate = signal<string | null>(null);
+  protected readonly weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+  protected readonly calendarMonthLabel = computed(() =>
+    new Intl.DateTimeFormat(undefined, { month: 'long', year: 'numeric' }).format(this.calendarMonth()),
+  );
+  protected readonly calendarDays = computed(() => {
+    const month = this.calendarMonth();
+    const firstOfMonth = new Date(month.getFullYear(), month.getMonth(), 1);
+    const firstVisibleDay = new Date(
+      month.getFullYear(),
+      month.getMonth(),
+      1 - firstOfMonth.getDay(),
+    );
+    return Array.from(
+      { length: 42 },
+      (_, index) =>
+        new Date(
+          firstVisibleDay.getFullYear(),
+          firstVisibleDay.getMonth(),
+          firstVisibleDay.getDate() + index,
+        ),
+    );
+  });
+  protected readonly selectionStartLabel = computed(
+    () => this.formatDate(this.pendingStartDate() ?? this.startDate()),
+  );
+  protected readonly selectionEndLabel = computed(() => this.formatDate(this.endDate()));
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
   protected readonly rows = signal<readonly OverallReportRow[]>([]);
@@ -105,11 +135,84 @@ export class ReportsPage implements OnInit {
     if (!(event.target instanceof HTMLInputElement)) {
       return;
     }
+
     if (field === 'start') {
       this.startDate.set(event.target.value);
     } else {
       this.endDate.set(event.target.value);
     }
+
+    this.closeDatePicker();
+  }
+
+  protected toggleDatePicker(): void {
+    if (this.datePickerOpen()) {
+      this.closeDatePicker();
+      return;
+    }
+    this.pendingStartDate.set(null);
+    this.dateSelectionStep.set('start');
+    this.calendarMonth.set(this.parseLocalDate(this.startDate()));
+    this.datePickerOpen.set(true);
+  }
+
+  protected closeDatePicker(): void {
+    this.datePickerOpen.set(false);
+    this.pendingStartDate.set(null);
+    this.dateSelectionStep.set('start');
+  }
+
+  protected moveCalendarMonth(amount: number): void {
+    const month = this.calendarMonth();
+    this.calendarMonth.set(new Date(month.getFullYear(), month.getMonth() + amount, 1));
+  }
+
+  protected selectCalendarDate(date: Date): void {
+    const selectedDate = this.localDateString(date);
+    if (this.dateSelectionStep() === 'start') {
+      this.pendingStartDate.set(selectedDate);
+      this.startDate.set(selectedDate);
+      this.dateSelectionStep.set('end');
+      const currentEndDate = this.parseLocalDate(this.endDate());
+      this.calendarMonth.set(
+        new Date(currentEndDate.getFullYear(), currentEndDate.getMonth(), 1),
+      );
+      return;
+    }
+
+    const pendingStart = this.pendingStartDate() ?? this.startDate();
+    if (selectedDate < pendingStart) {
+      this.endDate.set(pendingStart);
+      this.startDate.set(selectedDate);
+    } else {
+      this.startDate.set(pendingStart);
+      this.endDate.set(selectedDate);
+    }
+    this.closeDatePicker();
+  }
+
+  protected isInDisplayedMonth(date: Date): boolean {
+    const month = this.calendarMonth();
+    return date.getMonth() === month.getMonth() && date.getFullYear() === month.getFullYear();
+  }
+
+  protected isInSelectedRange(date: Date): boolean {
+    const value = this.localDateString(date);
+    const pendingStart = this.pendingStartDate();
+    if (this.dateSelectionStep() === 'end' && pendingStart !== null) {
+      const rangeStart = pendingStart < this.endDate() ? pendingStart : this.endDate();
+      const rangeEnd = pendingStart > this.endDate() ? pendingStart : this.endDate();
+      return value >= rangeStart && value <= rangeEnd;
+    }
+    return value >= this.startDate() && value <= this.endDate();
+  }
+
+  protected isRangeBoundary(date: Date): boolean {
+    const value = this.localDateString(date);
+    if (this.dateSelectionStep() === 'end' && this.pendingStartDate()) {
+      return value === this.pendingStartDate() || value === this.endDate();
+    }
+    return value === this.startDate() || value === this.endDate();
   }
 
   protected generateReport(barcode: string, startDate: string, endDate: string): void {
@@ -232,6 +335,25 @@ export class ReportsPage implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private parseLocalDate(value: string): Date {
+    if (!value) {
+      return new Date();
+    }
+    const [year, month, day] = value.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  private formatDate(value: string): string {
+    if (!value) {
+      return 'Not set';
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+    }).format(this.parseLocalDate(value));
   }
 
   private csvCell(value: unknown): string {

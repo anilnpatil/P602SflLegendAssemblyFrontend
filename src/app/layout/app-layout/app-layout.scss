@@ -22,7 +22,26 @@
 }
 
 .workspace--reports {
-  padding: 8px 10px;
+  height: calc(100vh - 50px);
+  min-height: 0;
+  padding: 0 12px 12px;
+}
+
+.workspace--production {
+  height: calc(100vh - 50px);
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 12px 12px;
+}
+
+.workspace--reports .workspace__content {
+  height: 100%;
+  min-height: 0;
+}
+
+.workspace--production .workspace__content {
+  height: 100%;
+  min-height: 0;
 }
 
 .workspace__content {
@@ -54,11 +73,20 @@
   }
 
   .workspace--reports {
-    padding: 8px;
+    height: calc(100vh - 50px);
+    padding: 0 8px 8px;
+  }
+
+  .workspace--production {
+    padding: 0 8px 12px;
   }
 
   .workspace__content {
     min-height: calc(100vh - 97px);
+  }
+
+  .workspace--production .workspace__content {
+    min-height: 0;
   }
 
   .sidebar-backdrop {

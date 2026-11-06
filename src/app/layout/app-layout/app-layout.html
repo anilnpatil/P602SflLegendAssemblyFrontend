@@ -27,6 +27,7 @@
   <main
     class="workspace"
     [class.workspace--assembly]="activePage().label === 'Assembly'"
+    [class.workspace--production]="activePage().label === 'Production'"
     [class.workspace--reports]="activePage().label === 'Reports'"
   >
     <div class="workspace__content">
@@ -42,7 +43,7 @@
           <app-assembly-page />
         }
         @case ('Production') {
-          <app-production-page />
+          <app-production-summary-page />
         }
         @case ('Quality') {
           <app-quality-page />

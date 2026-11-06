@@ -1,9 +1,10 @@
+import { DOCUMENT } from '@angular/common';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import type { ThemePreference } from '../../core/theme/theme-preference';
 import { ThemeService } from '../../core/theme/theme.service';
 import { AssemblyPage } from '../../pages/assembly/assembly-page';
 import { DashboardPage } from '../../pages/dashboard/dashboard-page';
-import { ProductionPage } from '../../pages/production/production-page';
+import { ProductionSummaryPage } from '../../pages/production-summary-page/production-summary-page';
 import { QualityPage } from '../../pages/quality/quality-page';
 import { ReportsPage } from '../../pages/reports/reports-page';
 import { SettingsPage } from '../../pages/settings/settings-page';
@@ -12,6 +13,8 @@ import { Header } from '../header/header';
 import type { NavigationItem } from '../navigation-item';
 import { Sidebar } from '../sidebar/sidebar';
 
+const ACTIVE_PAGE_STORAGE_KEY = 'p602-active-page';
+
 @Component({
   selector: 'app-layout',
   imports: [
@@ -19,7 +22,7 @@ import { Sidebar } from '../sidebar/sidebar';
     Sidebar,
     DashboardPage,
     AssemblyPage,
-    ProductionPage,
+    ProductionSummaryPage,
     QualityPage,
     ReportsPage,
     SettingsPage,
@@ -31,6 +34,7 @@ import { Sidebar } from '../sidebar/sidebar';
 })
 export class AppLayout {
   protected readonly themeService = inject(ThemeService);
+  private readonly document = inject(DOCUMENT);
   protected readonly navigation: readonly NavigationItem[] = [
     {
       label: 'Dashboard',
@@ -64,7 +68,7 @@ export class AppLayout {
     },
   ];
 
-  protected readonly activePage = signal(this.navigation[0]);
+  protected readonly activePage = signal(this.getInitialPage());
   protected readonly isSidebarCollapsed = signal(true);
   protected readonly isMobileNavOpen = signal(false);
 
@@ -79,6 +83,7 @@ export class AppLayout {
 
   protected selectPage(item: NavigationItem): void {
     this.activePage.set(item);
+    this.document.defaultView?.localStorage.setItem(ACTIVE_PAGE_STORAGE_KEY, item.label);
     this.isMobileNavOpen.set(false);
   }
 
@@ -88,5 +93,10 @@ export class AppLayout {
 
   protected closeMobileNav(): void {
     this.isMobileNavOpen.set(false);
+  }
+
+  private getInitialPage(): NavigationItem {
+    const savedLabel = this.document.defaultView?.localStorage.getItem(ACTIVE_PAGE_STORAGE_KEY);
+    return this.navigation.find((item) => item.label === savedLabel) ?? this.navigation[0];
   }
 }

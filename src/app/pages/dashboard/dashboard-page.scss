@@ -8,9 +8,7 @@
   padding: 38px 46px;
   overflow: hidden;
   color: #fff;
-  background:
-    radial-gradient(ellipse at 80% 12%, #718dfb55 0%, transparent 37%),
-    linear-gradient(118deg, #12265f 0%, #20399a 52%, #3152bd 100%);
+  background: var(--color-welcome-gradient);
   border: 1px solid #ffffff1c;
   border-radius: 20px;
   box-shadow: 0 18px 42px #1d347622;

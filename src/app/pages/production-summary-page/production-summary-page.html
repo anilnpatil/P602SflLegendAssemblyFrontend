@@ -1,0 +1,126 @@
+<section class="production-summary" aria-labelledby="production-summary-title">
+  <form class="filter-card" (ngSubmit)="load()">
+    <div
+      class="filters"
+      [class.filters--range]="dateFilter === 'RANGE'"
+      [class.filters--single-date]="dateFilter !== 'RANGE'"
+    >
+      <h1 id="production-summary-title">Production summary</h1>
+
+      <label class="filter-field filter-field--side">
+        <span>Side</span>
+        <select name="side" [(ngModel)]="side">
+          <option value="LH">Left hand - LH</option>
+          <option value="RH">Right hand - RH</option>
+        </select>
+      </label>
+
+      <label class="filter-field filter-field--period">
+        <span>Period</span>
+        <select name="dateFilter" [(ngModel)]="dateFilter">
+          <option value="RANGE">Date range</option>
+          <option value="MONTH">Month</option>
+          <option value="YEAR">Year</option>
+        </select>
+      </label>
+
+      @if (dateFilter === 'RANGE') {
+        <label class="filter-field filter-field--date">
+          <span>From date</span>
+          <input name="startDate" type="date" [(ngModel)]="startDate" required />
+        </label>
+        <label class="filter-field filter-field--date">
+          <span>To date</span>
+          <input name="endDate" type="date" [(ngModel)]="endDate" required />
+        </label>
+      } @else if (dateFilter === 'MONTH') {
+        <label class="filter-field filter-field--date">
+          <span>Month</span>
+          <input name="month" type="month" [(ngModel)]="month" required />
+        </label>
+      } @else {
+        <label class="filter-field filter-field--date">
+          <span>Year</span>
+          <input name="year" type="number" min="1" max="9999" [(ngModel)]="year" required />
+        </label>
+      }
+
+      <button class="apply-button" type="submit" [disabled]="loading">
+        {{ loading ? 'Loading...' : 'Apply filters' }}
+      </button>
+    </div>
+  </form>
+
+  @if (errorMessage) {
+    <div class="message message--error" role="alert">
+      <span>{{ errorMessage }}</span>
+      <button type="button" (click)="load()" [disabled]="loading">Retry</button>
+    </div>
+  }
+
+  <section class="results-card" aria-labelledby="results-title" aria-live="polite">
+    <div class="results-heading">
+      <div>
+        <h2 id="results-title">{{ side }} production</h2>
+      </div>
+    </div>
+
+    <div class="count-legend" aria-label="Count color key">
+      <span class="legend-item count-total">Total</span>
+      <span class="legend-item count-ok">OK</span>
+      <span class="legend-item count-reject">Not OK</span>
+    </div>
+
+    @if (loading) {
+      <p class="message">Loading production details...</p>
+    } @else if (days.length === 0 && !errorMessage) {
+      <p class="message">No production details found for the selected filters.</p>
+    } @else if (days.length > 0) {
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">
+                {{ dateFilter === 'RANGE' ? 'Date' : dateFilter === 'MONTH' ? 'Month' : 'Year' }}
+              </th>
+              <th scope="col">Shift 1</th>
+              <th scope="col">Shift 2</th>
+              <th scope="col">Shift 3</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (day of days; track day.label) {
+              <tr>
+                <th class="date-summary" scope="row">
+                  <span>{{ day.label }}</span>
+                  <span class="date-total count-total">Total: <strong>{{ day.total }}</strong></span>
+                  <span class="date-total count-ok">OK: <strong>{{ day.ok }}</strong></span>
+                  <span class="date-total count-reject">Not OK: <strong>{{ day.notOk }}</strong></span>
+                </th>
+                @for (shift of [1, 2, 3]; track shift) {
+                  <td>
+                    @if (day.shifts[shift]; as counts) {
+                      <div class="counts">
+                        <span class="count-badge count-total" [attr.aria-label]="'Total: ' + counts.total">
+                          <span class="visually-hidden">Total: </span><strong>{{ counts.total }}</strong>
+                        </span>
+                        <span class="count-badge count-ok" [attr.aria-label]="'OK: ' + counts.ok">
+                          <span class="visually-hidden">OK: </span><strong>{{ counts.ok }}</strong>
+                        </span>
+                        <span class="count-badge count-reject" [attr.aria-label]="'Not OK: ' + counts.notOk">
+                          <span class="visually-hidden">Not OK: </span><strong>{{ counts.notOk }}</strong>
+                        </span>
+                      </div>
+                    } @else {
+                      <span class="empty-value">-</span>
+                    }
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+</section>

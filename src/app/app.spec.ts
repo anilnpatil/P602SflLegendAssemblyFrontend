@@ -4,6 +4,7 @@ import { of } from 'rxjs';
 import { App } from './app';
 import { LiveDataService } from './core/live-data/live-data.service';
 import type { MachineStatus } from './core/live-data/machine-status';
+import { ProductionSummaryService } from './pages/production-summary-page/production-summary.service';
 
 const machineStatuses: MachineStatus[] = [
   {
@@ -127,13 +128,21 @@ const machineStatuses: MachineStatus[] = [
 
 describe('App', () => {
   beforeEach(async () => {
+    localStorage.removeItem('p602-active-page');
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
         provideRouter([]),
         {
           provide: LiveDataService,
-          useValue: { getMachineStatuses: () => of(machineStatuses) },
+          useValue: {
+            getMachineStatuses: () => of(machineStatuses),
+            getOverallReport: () => of([]),
+          },
+        },
+        {
+          provide: ProductionSummaryService,
+          useValue: { fetch: () => of([]) },
         },
       ],
     }).compileComponents();
@@ -222,7 +231,14 @@ describe('App', () => {
       pageLink.click();
       fixture.detectChanges();
 
-      expect(fixture.nativeElement.querySelector('.section-page h1')?.textContent).toContain(page);
+      if (page === 'Production') {
+        expect(
+          fixture.nativeElement.querySelector('.production-summary h1')?.textContent,
+        ).toContain('Production summary');
+        expect(fixture.nativeElement.querySelectorAll('.filter-field').length).toBeGreaterThan(0);
+      } else {
+        expect(fixture.nativeElement.querySelector('.section-page h1')?.textContent).toContain(page);
+      }
       expect(fixture.nativeElement.querySelector('.machine-card')).toBeNull();
     }
   });
@@ -239,6 +255,35 @@ describe('App', () => {
 
     expect(fixture.nativeElement.querySelector('.assembly-heading h1')?.textContent).toContain('Assembly');
     expect(assemblyLink.getAttribute('aria-current')).toBe('page');
+  });
+
+  it('should restore the last selected workspace after reload', async () => {
+    localStorage.setItem('p602-active-page', 'Production');
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(
+      fixture.nativeElement.querySelector('.production-summary h1')?.textContent,
+    ).toContain('Production summary');
+    expect(
+      fixture.nativeElement
+        .querySelector('.nav-link[aria-label="Production"]')
+        ?.getAttribute('aria-current'),
+    ).toBe('page');
+  });
+
+  it('should persist the workspace after selecting it', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const reportsLink = fixture.nativeElement.querySelector(
+      '.nav-link[aria-label="Reports"]',
+    ) as HTMLButtonElement;
+
+    reportsLink.click();
+    fixture.detectChanges();
+
+    expect(localStorage.getItem('p602-active-page')).toBe('Reports');
   });
 
   it('should toggle the sidebar from the header menu button', async () => {

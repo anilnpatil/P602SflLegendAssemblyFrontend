@@ -1,20 +1,9 @@
-<section class="overall-report" aria-labelledby="overall-report-title">
+<section class="overall-report" aria-label="Completed component records">
   <form
     class="report-filter-card"
-    aria-labelledby="overall-report-title"
-    (submit)="$event.preventDefault(); generateReport(barcodeInput.value, startDateInput.value, endDateInput.value)"
+    aria-label="Overall component report filters"
+    (submit)="$event.preventDefault(); generateReport(barcodeInput.value, startDate(), endDate())"
   >
-    <div class="report-filter-card__heading">
-      <div>
-        <span class="filter-eyebrow">REPORT FILTERS</span>
-        <h1 id="overall-report-title">Overall component report</h1>
-      </div>
-      <span class="completion-note">
-        <span aria-hidden="true"></span>
-        Completed components only
-      </span>
-    </div>
-
     <div class="report-filters">
       <label class="filter-field filter-field--side">
         <span>Component side</span>
@@ -36,25 +25,97 @@
         </span>
       </label>
 
-      <label class="filter-field filter-field--date">
-        <span>From date</span>
-        <input
-          #startDateInput
-          type="date"
-          [value]="startDate()"
-          (change)="updateDate($event, 'start')"
-        />
-      </label>
+      <div class="filter-field filter-field--date-range">
+        <span>Date</span>
+        <div class="date-range-control">
+          <button
+            class="date-range-trigger"
+            type="button"
+            aria-label="Choose dates from calendar"
+            aria-controls="report-date-picker"
+            [attr.aria-expanded]="datePickerOpen()"
+            (click)="toggleDatePicker()"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="3.5" y="5" width="17" height="15" rx="2" />
+              <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
+            </svg>
+          </button>
+          <label class="date-input-field">
+            <span>From</span>
+            <input
+              class="date-value-input"
+              type="date"
+              aria-label="From date"
+              [value]="startDate()"
+              (change)="updateDate($event, 'start')"
+            />
+          </label>
+          <label class="date-input-field">
+            <span>To</span>
+            <input
+              class="date-value-input"
+              type="date"
+              aria-label="To date"
+              [value]="endDate()"
+              (change)="updateDate($event, 'end')"
+            />
+          </label>
 
-      <label class="filter-field filter-field--date">
-        <span>To date</span>
-        <input
-          #endDateInput
-          type="date"
-          [value]="endDate()"
-          (change)="updateDate($event, 'end')"
-        />
-      </label>
+          @if (datePickerOpen()) {
+            <div
+              class="date-range-popover"
+              id="report-date-picker"
+              role="dialog"
+              aria-label="Select report date range"
+              (keydown.escape)="closeDatePicker()"
+            >
+              <div class="date-range-steps">
+                <span [class.date-range-step--active]="dateSelectionStep() === 'start'">
+                  From <strong>{{ selectionStartLabel() }}</strong>
+                </span>
+                <span aria-hidden="true">→</span>
+                <span [class.date-range-step--active]="dateSelectionStep() === 'end'">
+                  To <strong>{{ selectionEndLabel() }}</strong>
+                </span>
+              </div>
+              <p class="date-range-instruction">
+                Select {{ dateSelectionStep() === 'start' ? 'a start date' : 'an end date' }}
+              </p>
+              <div class="calendar-heading">
+                <button
+                  type="button"
+                  aria-label="Previous month"
+                  (click)="moveCalendarMonth(-1)"
+                >‹</button>
+                <strong>{{ calendarMonthLabel() }}</strong>
+                <button
+                  type="button"
+                  aria-label="Next month"
+                  (click)="moveCalendarMonth(1)"
+                >›</button>
+              </div>
+              <div class="calendar-grid" role="group" aria-label="Calendar days">
+                @for (weekday of weekdays; track weekday) {
+                  <span class="calendar-weekday">{{ weekday }}</span>
+                }
+                @for (day of calendarDays(); track day.getTime()) {
+                  <button
+                    class="calendar-day"
+                    type="button"
+                    [class.calendar-day--outside]="!isInDisplayedMonth(day)"
+                    [class.calendar-day--in-range]="isInSelectedRange(day)"
+                    [class.calendar-day--boundary]="isRangeBoundary(day)"
+                    [attr.aria-label]="day | date: 'fullDate'"
+                    [attr.aria-pressed]="isRangeBoundary(day)"
+                    (click)="selectCalendarDate(day)"
+                  >{{ day.getDate() }}</button>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
 
       <label class="filter-field filter-field--shift">
         <span>Production shift</span>
@@ -72,6 +133,12 @@
         </svg>
         {{ loading() ? 'Loading…' : 'Generate report' }}
       </button>
+
+      <span class="completion-note">
+        <span aria-hidden="true"></span>
+        Completed components only
+      </span>
+
     </div>
   </form>
 
@@ -79,12 +146,8 @@
     <p class="report-alert" role="alert">{{ message }}</p>
   }
 
-  <section class="report-results" aria-labelledby="report-results-title">
+  <section class="report-results" aria-label="Completed component records">
     <div class="results-heading">
-      <div>
-        <span class="filter-eyebrow">ASSEMBLY HISTORY</span>
-        <h2 id="report-results-title">Completed component records</h2>
-      </div>
       <div class="results-actions">
         <span class="result-count">
           <strong>{{ rows().length }}</strong>
