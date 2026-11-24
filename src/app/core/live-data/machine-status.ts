@@ -14,6 +14,8 @@ export type MachineStatus = {
   airGauge2Actual: number | null;
   airGauge2Max: number | null;
   airGauge2Status: number | null;
+  outerGuideStatus: number | null;
+  innerGuideStatus: number | null;
   outerDiaMin: number | null;
   outerDiaActual: number | null;
   outerDiaMax: number | null;
@@ -30,6 +32,15 @@ export type MachineStatus = {
   actualDisplacement: number | null;
   maxDisplacement: number | null;
   displacementStatus: number | null;
+  hole1Status: number | null;
+  hole2Status: number | null;
+  hole3Status: number | null;
+  hole4Status: number | null;
+  hole5Status: number | null;
+  hole6Status: number | null;
+  hole7Status: number | null;
+  hole8Status: number | null;
+  holeStatus: number | null;
   okCount: number | null;
   notOkCount: number | null;
   totalPartCount: number | null;

@@ -97,7 +97,7 @@ app-reports-page {
   background: var(--color-welcome-gradient);
   border: 0;
   border-bottom: 1px solid #ffffff30;
-  border-radius: 0 0 14px 14px;
+  border-radius: 0;
   box-shadow: 0 8px 24px #172b4d22;
 }
 
@@ -115,39 +115,17 @@ app-reports-page {
   font-weight: 700;
 }
 
-.completion-note {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 8px;
-  color: #267b67;
-  background: #e8f7f1;
-  border: 1px solid #ccebdd;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 650;
-  white-space: nowrap;
-}
-
-.completion-note > span {
-  width: 7px;
-  height: 7px;
-  background: #30a47d;
-  border-radius: 50%;
-}
-
 .report-filters {
   display: grid;
   grid-template-columns:
-    minmax(260px, 1.1fr)
-    minmax(300px, 1.35fr)
-    minmax(390px, 1.75fr)
-    minmax(210px, 0.95fr)
     max-content
+    minmax(138px, 1fr)
+    260px
+    130px
     max-content;
   align-items: center;
   row-gap: 8px;
-  column-gap: 18px;
+  column-gap: 8px;
 }
 
 .filter-field {
@@ -156,17 +134,15 @@ app-reports-page {
   align-items: center;
   gap: 6px;
   color: #e0e6ff;
-  font-size: 14px;
-  font-weight: 650;
+  font-size: 13px;
+  font-weight: 600;
   white-space: nowrap;
 }
 
 .filter-field > span:first-child,
-.date-input-field > span {
-  font-size: 14px;
-}
-
-.filter-field > span:first-child {
+.filter-field > label:first-child {
+  font-size: 13px;
+  font-weight: 600;
   flex: 0 0 auto;
   padding-left: 0;
 }
@@ -182,11 +158,13 @@ app-reports-page {
   border: 1px solid #ffffff80;
   border-radius: 7px;
   font: inherit;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .filter-field input::placeholder {
   font: inherit;
+  color: #757575;
   opacity: 0.72;
 }
 
@@ -204,7 +182,7 @@ app-reports-page {
 }
 
 .filter-field--date-range {
-  font-size: 14px;
+  font-size: 13px;
   min-width: 0;
 }
 
@@ -217,59 +195,55 @@ app-reports-page {
   width: auto;
 }
 
-.date-range-control {
-  position: relative;
-  flex: 1 1 auto;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  min-width: 0;
-}
-
-.date-input-field {
+.report-action-buttons {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1 1 0;
+  white-space: nowrap;
+}
+
+.date-range-control {
+  position: relative;
+  flex: 1 1 auto;
   min-width: 0;
-  color: #e0e6ff;
-  font-size: 14px;
-  font-weight: 650;
+}
+
+.date-range-input-wrap {
+  position: relative;
+  min-width: 0;
+  width: 100%;
 }
 
 .filter-field .date-value-input {
-  width: clamp(120px, 8vw, 145px);
-  flex: 1 1 auto;
+  width: 100%;
+  flex: 0 1 auto;
   min-width: 0;
-  padding: 0 7px;
-  font-size: 14px;
-  text-align: center;
-}
-
-.filter-field .date-value-input::-webkit-datetime-edit {
-  font: inherit;
-  text-align: center;
+  padding: 0 38px 0 8px;
+  font-size: 12px;
+  text-align: left;
 }
 
 .date-range-trigger {
-  height: 34px;
-  width: 34px;
-  flex: 0 0 34px;
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  height: 28px;
+  width: 28px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0;
   color: #29313f;
-  background: #fff;
-  border: 1px solid #ffffff80;
-  border-radius: 7px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
   cursor: pointer;
   font: inherit;
   font-size: 14px;
 }
 
 .date-range-trigger svg {
-  width: 15px;
+  width: 16px;
   flex: 0 0 auto;
   fill: none;
   stroke: currentColor;
@@ -290,28 +264,6 @@ app-reports-page {
   border: 1px solid var(--color-border);
   border-radius: 10px;
   box-shadow: 0 8px 24px #172b4d33;
-}
-
-.date-range-steps {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  font-size: 11px;
-}
-
-.date-range-steps > span:first-child,
-.date-range-steps > span:last-child {
-  padding: 6px 8px;
-  color: var(--color-text-muted);
-  background: var(--color-surface-alt, #f3f5f8);
-  border: 1px solid transparent;
-  border-radius: 6px;
-}
-
-.date-range-steps .date-range-step--active {
-  color: var(--color-text);
-  border-color: #79e0b2;
 }
 
 .date-range-instruction {
@@ -467,10 +419,11 @@ app-reports-page {
   flex: 1 1 0;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
-  gap: 8px;
+  gap: 4px;
   min-height: 0;
   margin: 0 4px;
-  padding: 8px;
+  padding: 4px 8px;
+  border-radius: 0 0 11px 11px;
   overflow: hidden;
 }
 
@@ -534,7 +487,7 @@ app-reports-page {
   white-space: nowrap;
 }
 
-.overall-report-table tbody td:nth-child(-n + 5) {
+.overall-report-table tbody td:first-child {
   text-align: left;
 }
 
@@ -552,6 +505,14 @@ app-reports-page {
 .overall-report-table thead tr:first-child th {
   top: 0;
   height: 34px;
+}
+
+.overall-report-table thead tr:first-child th > span {
+  display: block;
+}
+
+.overall-report-table thead th.parameter-subgroup--status-only > span {
+  display: block;
 }
 
 .overall-report-table thead tr:nth-child(2) th {
@@ -751,7 +712,22 @@ app-reports-page {
   font-size: 10px;
 }
 
-@media (max-width: 1650px) {
+@media (min-width: 761px) {
+  .overall-report {
+    margin-left: -12px;
+  }
+
+  .report-filter-card {
+    margin-left: 0;
+  }
+
+  .report-results {
+    margin-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 1189px) {
   .report-filters {
     display: flex;
     flex-wrap: wrap;
@@ -774,6 +750,10 @@ app-reports-page {
   .filter-field--date-range {
     flex: 1 1 340px;
   }
+
+  .report-action-buttons {
+    flex: 0 0 auto;
+  }
 }
 
 @media (max-width: 700px) {
@@ -791,7 +771,7 @@ app-reports-page {
   .report-filter-card {
     margin: 0 -8px;
     padding: 10px 14px;
-    border-radius: 0 0 12px 12px;
+    border-radius: 0;
   }
 
   .completion-note {
@@ -817,21 +797,23 @@ app-reports-page {
     flex-basis: 100%;
   }
 
-  .date-range-control {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .filter-field .date-value-input {
-    width: 115px;
+  .date-range-input-wrap {
+    width: 100%;
   }
 
   .filter-field--barcode {
     flex-basis: 100%;
   }
 
-  .generate-button {
+  .report-action-buttons {
     width: 100%;
+  }
+
+  .report-action-buttons .generate-button,
+  .report-action-buttons .download-button {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 8px;
   }
 
   .results-heading {
@@ -845,7 +827,8 @@ app-reports-page {
 
   .report-results {
     margin: 0;
-    padding: 9px 4px 6px;
+    padding: 4px 4px 4px 0;
+    border-radius: 0 0 10px 10px;
   }
 
   .report-table-wrap {

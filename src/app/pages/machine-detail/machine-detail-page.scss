@@ -3,9 +3,10 @@
   height: calc(100vh - 50px);
   display: flex;
   flex-direction: column;
-  margin: -35px -24px -22px;
+  margin: -5px -10px -22px;
   padding: 10px 12px 0;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
   background: #25c8ce;
 }
 
@@ -20,7 +21,6 @@
 .machine-live-name,
 .machine-live-label,
 .machine-live-value,
-.machine-live-current-shift strong,
 .machine-live-status {
   min-width: 0;
   min-height: 27px;
@@ -43,26 +43,16 @@
   white-space: nowrap;
 }
 
-.machine-live-label,
-.machine-live-current-shift {
+.machine-live-label {
   background: #d5dadd;
 }
 
 .machine-live-current-shift {
-  min-height: 27px;
+  min-width: 0;
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr) minmax(50px, auto);
   align-items: center;
-  gap: 5px;
-  padding-left: 8px;
-  color: #111820;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.machine-live-current-shift strong {
-  min-height: 25px;
-  background: #fff;
+  gap: 8px;
 }
 
 .machine-live-value {
@@ -119,7 +109,7 @@
 .machine-live-controls {
   display: grid;
   grid-template-columns: minmax(360px, 1.8fr) minmax(245px, 1fr) minmax(300px, 1.5fr);
-  align-items: start;
+  align-items: stretch;
   gap: 14px;
   margin-bottom: 14px;
 }
@@ -138,6 +128,10 @@
   border: 1px solid #dce2e3;
   border-radius: 4px;
   box-shadow: 0 2px 4px #1432381c;
+}
+
+.report-card {
+  padding: 4px 12px;
 }
 
 .summary-line {
@@ -196,7 +190,7 @@
 }
 
 .report-card h2 {
-  margin: 0 0 10px;
+  margin: 0 0 6px;
   padding: 4px;
   color: #161a1b;
   background: #fffde4;
@@ -210,7 +204,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 1px 8px;
+  padding: 0 8px;
 }
 
 .report-card__form input[type='text'] {
@@ -238,27 +232,136 @@
   cursor: not-allowed;
 }
 
-.report-card__form--date label {
-  min-width: 0;
-  display: grid;
-  gap: 4px;
-  color: #687078;
-  font-size: 10px;
+.report-card--date-picker {
+  position: relative;
+  z-index: 4;
 }
 
-.report-card__form--date label div {
+.machine-date-range-fields {
+  min-width: 0;
+  flex: 1 1 0;
   display: flex;
   align-items: center;
   gap: 4px;
 }
 
-.report-card__form--date input {
-  width: 115px;
-  max-width: 42%;
+.report-card__form--date .machine-date-range-fields input {
+  width: 0;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 0;
   min-height: 28px;
-  padding: 3px;
+  padding: 3px 4px;
   color: #28313a;
   border: 1px solid #d7dcdf;
+  font-size: 11px;
+}
+
+.machine-date-range-fields input:focus {
+  outline: 2px solid #1769e0;
+  outline-offset: 1px;
+}
+
+.machine-date-range-fields > span {
+  color: #687078;
+}
+
+.machine-date-picker {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  right: 8px;
+  width: min(280px, calc(100vw - 32px));
+  padding: 10px;
+  color: #172026;
+  background: #fff;
+  border: 1px solid #d7dcdf;
+  border-radius: 4px;
+  box-shadow: 0 6px 18px #142d3533;
+}
+
+.machine-date-picker__instruction {
+  margin: 0 0 8px;
+  color: #687078;
+  font-size: 11px;
+}
+
+.machine-date-picker__header {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 28px 28px;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.machine-date-picker__header strong {
+  font-size: 12px;
+}
+
+.machine-date-picker__header button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: #1769e0;
+  background: #f3f6fa;
+  border: 1px solid #d7dcdf;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.machine-date-picker__header .machine-date-picker__close {
+  color: #687078;
+  background: transparent;
+  border: 0;
+  font-size: 20px;
+}
+
+.machine-date-picker__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.machine-date-picker__weekday,
+.machine-date-picker__day {
+  min-width: 0;
+  min-height: 30px;
+  display: grid;
+  place-items: center;
+}
+
+.machine-date-picker__weekday {
+  color: #687078;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.machine-date-picker__day {
+  padding: 0;
+  color: #172026;
+  background: #fff;
+  border: 0;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.machine-date-picker__day:hover,
+.machine-date-picker__day--in-range {
+  background: #e8f0ff;
+}
+
+.machine-date-picker__day--outside {
+  color: #8a929a;
+}
+
+.machine-date-picker__day--boundary,
+.machine-date-picker__day--boundary:hover {
+  color: #fff;
+  background: #1769e0;
+  font-weight: 700;
 }
 
 .report-card__form--date button {
@@ -336,7 +439,7 @@
   border-collapse: collapse;
   color: #172026;
   font-size: 12px;
-  text-align: left;
+  text-align: center;
 }
 
 .machine-report-table th,
@@ -395,7 +498,7 @@
   .machine-live-page {
     height: auto;
     min-height: calc(100vh - 50px);
-    margin: -27px -12px -20px;
+    margin: 0 -12px -20px;
     padding: 8px 8px 0;
     overflow: visible;
   }

@@ -2,8 +2,8 @@
   <div class="machine-live-topbar">
     <h1 id="machine-detail-title" class="machine-live-name">{{ machine().entityName }}</h1>
     <div class="machine-live-current-shift">
-      <span>Current Shift</span>
-      <strong>{{ machine().shift ?? '—' }}</strong>
+      <span class="machine-live-label">Current Shift</span>
+      <strong class="machine-live-value">{{ machine().shift ?? '—' }}</strong>
     </div>
     <span class="machine-live-label">QR Code NO</span>
     <strong class="machine-live-value">{{ machine().barcode || '—' }}</strong>
@@ -75,25 +75,99 @@
         </div>
       </section>
 
-      <section class="report-card" aria-labelledby="date-report-title">
+      <section
+        class="report-card report-card--date-picker"
+        aria-labelledby="date-report-title"
+        (keydown.escape)="closeDatePicker()"
+      >
         <h2 id="date-report-title">{{ machine().entityName }} Report Generate</h2>
         <div class="report-card__form report-card__form--date">
-          <label>
-            <span>Enter a date range</span>
-            <div>
-              <input #startDateInput type="date" aria-label="Report start date" />
-              <span aria-hidden="true">–</span>
-              <input #endDateInput type="date" aria-label="Report end date" />
-            </div>
-          </label>
+          <div class="machine-date-range-fields">
+            <input
+              type="text"
+              inputmode="numeric"
+              placeholder="YYYY-MM-DD"
+              aria-label="Report start date"
+              [value]="startDate()"
+              (focus)="openDatePickerFor('start')"
+              (input)="updateDateInput($event, 'start')"
+            />
+            <span aria-hidden="true">–</span>
+            <input
+              type="text"
+              inputmode="numeric"
+              placeholder="YYYY-MM-DD"
+              aria-label="Report end date"
+              [value]="endDate()"
+              (focus)="openDatePickerFor('end')"
+              (input)="updateDateInput($event, 'end')"
+            />
+          </div>
           <button
             type="button"
             [disabled]="reportLoading()"
-            (click)="generateDateRangeReport(startDateInput.value, endDateInput.value)"
+            (click)="generateDateRangeReport(startDate(), endDate())"
           >
             Submit
           </button>
         </div>
+
+        @if (datePickerOpen()) {
+          <div
+            class="machine-date-picker"
+            role="dialog"
+            aria-label="Select report date range"
+            (keydown.escape)="closeDatePicker()"
+          >
+            <p class="machine-date-picker__instruction">
+              Select {{ dateSelectionStep() === 'start' ? 'a start date' : 'an end date' }}
+            </p>
+            <div class="machine-date-picker__header">
+              <button
+                type="button"
+                aria-label="Previous month"
+                (click)="moveCalendarMonth(-1)"
+              >
+                ‹
+              </button>
+              <strong>{{ calendarMonthLabel() }}</strong>
+              <button
+                type="button"
+                aria-label="Next month"
+                (click)="moveCalendarMonth(1)"
+              >
+                ›
+              </button>
+              <button
+                class="machine-date-picker__close"
+                type="button"
+                aria-label="Close calendar"
+                (click)="closeDatePicker()"
+              >
+                ×
+              </button>
+            </div>
+            <div class="machine-date-picker__grid" aria-label="Calendar days">
+              @for (weekday of weekdays; track weekday) {
+                <span class="machine-date-picker__weekday">{{ weekday }}</span>
+              }
+              @for (day of calendarDays(); track day.getTime()) {
+                <button
+                  class="machine-date-picker__day"
+                  type="button"
+                  [class.machine-date-picker__day--outside]="!isInDisplayedMonth(day)"
+                  [class.machine-date-picker__day--in-range]="isInSelectedRange(day)"
+                  [class.machine-date-picker__day--boundary]="isRangeBoundary(day)"
+                  [attr.aria-label]="day | date: 'fullDate'"
+                  [attr.aria-pressed]="isRangeBoundary(day)"
+                  (click)="selectCalendarDate(day)"
+                >
+                  {{ day.getDate() }}
+                </button>
+              }
+            </div>
+          </div>
+        }
       </section>
     </div>
 
@@ -143,10 +217,14 @@
           <th scope="col">Shift</th>
           <th scope="col">Production Status</th>
           @for (operation of operations(); track operation.name) {
-            <th scope="col">{{ operation.name }} Min ({{ operation.unit }})</th>
-            <th scope="col">{{ operation.name }} Actual ({{ operation.unit }})</th>
-            <th scope="col">{{ operation.name }} Max ({{ operation.unit }})</th>
-            <th scope="col">{{ operation.name }} Status</th>
+            @if (operation.statusOnly) {
+              <th scope="col">{{ operation.name }} Status</th>
+            } @else {
+              <th scope="col">{{ operation.name }} Min ({{ operation.unit }})</th>
+              <th scope="col">{{ operation.name }} Actual ({{ operation.unit }})</th>
+              <th scope="col">{{ operation.name }} Max ({{ operation.unit }})</th>
+              <th scope="col">{{ operation.name }} Status</th>
+            }
           }
         </tr>
       </thead>
@@ -160,15 +238,19 @@
             <td>{{ row.shift ?? '—' }}</td>
             <td>{{ statusLabel(row.finalStatus) }}</td>
             @for (operation of operationsFor(row); track operation.name) {
-              <td>{{ operation.min ?? '—' }}</td>
-              <td>{{ operation.actual ?? '—' }}</td>
-              <td>{{ operation.max ?? '—' }}</td>
-              <td>{{ statusLabel(operation.status) }}</td>
+              @if (operation.statusOnly) {
+                <td>{{ statusLabel(operation.status) }}</td>
+              } @else {
+                <td>{{ operation.min ?? '—' }}</td>
+                <td>{{ operation.actual ?? '—' }}</td>
+                <td>{{ operation.max ?? '—' }}</td>
+                <td>{{ statusLabel(operation.status) }}</td>
+              }
             }
           </tr>
         } @empty {
           <tr>
-            <td [attr.colspan]="6 + operations().length * 4" class="table-empty">
+            <td [attr.colspan]="reportColumnCount()" class="table-empty">
               No machine records found.
             </td>
           </tr>

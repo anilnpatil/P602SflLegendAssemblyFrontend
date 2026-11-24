@@ -13,13 +13,16 @@
 }
 
 .brand {
+  position: absolute;
+  left: 18px;
   display: flex;
   align-items: center;
+  z-index: 1;
 }
 
 .menu-toggle {
   position: absolute;
-  left: 1px;
+  left: 55px;
   width: 22px;
   height: 22px;
   display: grid;
@@ -84,6 +87,16 @@
 }
 
 @media (max-width: 480px) {
+  .topbar {
+    gap: 8px;
+    padding: 0 10px;
+  }
+
+  .brand {
+    position: static;
+    flex: 0 0 auto;
+  }
+
   .brand__logo {
     width: 22px;
     height: 28px;
@@ -92,20 +105,23 @@
   .brand__logo--right {
     width: min(82px, 25vw);
     height: 24px;
-  }
-
-  .topbar__title {
-    font-size: clamp(8px, 3vw, 11px);
-    letter-spacing: 0.04em;
-  }
-
-  .topbar {
-    padding-right: 10px;
+    flex: 0 0 auto;
+    margin-left: 0;
   }
 
   .menu-toggle {
-    left: 1px;
-    width: 22px;
-    height: 22px;
+    position: static;
+    flex: 0 0 22px;
+  }
+
+  .topbar__title {
+    position: static;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-size: clamp(8px, 3vw, 11px);
+    letter-spacing: 0.02em;
+    text-overflow: ellipsis;
+    transform: none;
   }
 }

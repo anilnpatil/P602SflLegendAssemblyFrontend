@@ -2,7 +2,7 @@
   <form
     class="report-filter-card"
     aria-label="Overall component report filters"
-    (submit)="$event.preventDefault(); generateReport(barcodeInput.value, startDate(), endDate())"
+    (submit)="$event.preventDefault(); generateReport(barcodeInput.value, dateRangeText())"
   >
     <div class="report-filters">
       <label class="filter-field filter-field--side">
@@ -15,7 +15,7 @@
       </label>
 
       <label class="filter-field filter-field--barcode">
-        <span>Barcode search</span>
+        <span>Barcode</span>
         <span class="barcode-input">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <circle cx="10.8" cy="10.8" r="6.8" />
@@ -26,41 +26,37 @@
       </label>
 
       <div class="filter-field filter-field--date-range">
-        <span>Date</span>
+        <label for="reportDateRange">Date range</label>
         <div class="date-range-control">
-          <button
-            class="date-range-trigger"
-            type="button"
-            aria-label="Choose dates from calendar"
-            aria-controls="report-date-picker"
-            [attr.aria-expanded]="datePickerOpen()"
-            (click)="toggleDatePicker()"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="3.5" y="5" width="17" height="15" rx="2" />
-              <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
-            </svg>
-          </button>
-          <label class="date-input-field">
-            <span>From</span>
+          <div class="date-range-input-wrap">
             <input
+              id="reportDateRange"
               class="date-value-input"
-              type="date"
-              aria-label="From date"
-              [value]="startDate()"
-              (change)="updateDate($event, 'start')"
+              type="text"
+              inputmode="numeric"
+              placeholder="Enter a date range"
+              aria-label="Report date range"
+              aria-controls="report-date-picker"
+              [attr.aria-expanded]="datePickerOpen()"
+              [value]="dateRangeText()"
+              (focus)="openDatePicker()"
+              (input)="updateDateRange($event)"
+              (change)="updateDateRange($event)"
             />
-          </label>
-          <label class="date-input-field">
-            <span>To</span>
-            <input
-              class="date-value-input"
-              type="date"
-              aria-label="To date"
-              [value]="endDate()"
-              (change)="updateDate($event, 'end')"
-            />
-          </label>
+            <button
+              class="date-range-trigger"
+              type="button"
+              aria-label="Choose date range from calendar"
+              aria-controls="report-date-picker"
+              [attr.aria-expanded]="datePickerOpen()"
+              (click)="toggleDatePicker()"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="3.5" y="5" width="17" height="15" rx="2" />
+                <path d="M7.5 3.5v3M16.5 3.5v3M3.5 9.5h17" />
+              </svg>
+            </button>
+          </div>
 
           @if (datePickerOpen()) {
             <div
@@ -70,15 +66,6 @@
               aria-label="Select report date range"
               (keydown.escape)="closeDatePicker()"
             >
-              <div class="date-range-steps">
-                <span [class.date-range-step--active]="dateSelectionStep() === 'start'">
-                  From <strong>{{ selectionStartLabel() }}</strong>
-                </span>
-                <span aria-hidden="true">→</span>
-                <span [class.date-range-step--active]="dateSelectionStep() === 'end'">
-                  To <strong>{{ selectionEndLabel() }}</strong>
-                </span>
-              </div>
               <p class="date-range-instruction">
                 Select {{ dateSelectionStep() === 'start' ? 'a start date' : 'an end date' }}
               </p>
@@ -118,7 +105,7 @@
       </div>
 
       <label class="filter-field filter-field--shift">
-        <span>Production shift</span>
+        <span>Shift</span>
         <select [value]="shift()" (change)="updateShift($event)">
           <option value="ALL">All shifts</option>
           <option value="1">Shift 1</option>
@@ -127,18 +114,25 @@
         </select>
       </label>
 
-      <button class="generate-button" type="submit" [disabled]="loading()">
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M4 5h16M7 12h10m-7 7h4" />
-        </svg>
-        {{ loading() ? 'Loading…' : 'Generate report' }}
-      </button>
-
-      <span class="completion-note">
-        <span aria-hidden="true"></span>
-        Completed components only
-      </span>
-
+      <div class="report-action-buttons">
+        <button class="generate-button" type="submit" [disabled]="loading()">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 5h16M7 12h10m-7 7h4" />
+          </svg>
+          {{ loading() ? 'Loading…' : 'Generate report' }}
+        </button>
+        <button
+          class="download-button"
+          type="button"
+          [disabled]="loading() || rows().length === 0"
+          (click)="downloadReport()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
+          </svg>
+          Download CSV
+        </button>
+      </div>
     </div>
   </form>
 
@@ -153,17 +147,6 @@
           <strong>{{ rows().length }}</strong>
           {{ rows().length === 1 ? 'record' : 'records' }}
         </span>
-        <button
-          class="download-button"
-          type="button"
-          [disabled]="loading() || rows().length === 0"
-          (click)="downloadReport()"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v3h16v-3" />
-          </svg>
-          Download CSV
-        </button>
       </div>
     </div>
 
@@ -171,16 +154,22 @@
       <table class="overall-report-table">
         <thead>
           <tr>
-            <th class="table-sticky-column table-sticky-column--first" rowspan="3" scope="col">Completion Date / Time</th>
+            <th class="table-sticky-column table-sticky-column--first" rowspan="3" scope="col">
+              <span>Completion Date</span>
+              <span>Time</span>
+            </th>
             <th class="table-sticky-column table-sticky-column--second" rowspan="3" scope="col">Barcode</th>
             <th rowspan="3" scope="col">Side</th>
             <th rowspan="3" scope="col">Shift</th>
-            <th rowspan="3" scope="col">Production</th>
+            <th rowspan="3" scope="col">
+              <span>Production</span>
+              <span>Status</span>
+            </th>
             @for (group of machineGroups(); track group.machineCode) {
               <th
                 class="parameter-group"
                 [class.parameter-group--common]="group.machineCode === '30B' || group.machineCode === '40B'"
-                [attr.colspan]="group.operations.length * 4"
+                [attr.colspan]="groupColumnCount(group)"
                 scope="colgroup"
               >
                 {{ group.label }}
@@ -190,19 +179,32 @@
           <tr>
             @for (group of machineGroups(); track group.machineCode) {
               @for (operation of group.operations; track operation.name) {
-                <th class="parameter-subgroup" colspan="4" scope="colgroup">
-                  {{ operation.name }} <span>({{ operation.unit }})</span>
-                </th>
+                @if (operation.statusOnly) {
+                  <th
+                    class="parameter-subgroup parameter-subgroup--status-only"
+                    rowspan="2"
+                    scope="col"
+                  >
+                    <span>{{ operation.name }}</span>
+                    <span>Status</span>
+                  </th>
+                } @else {
+                  <th class="parameter-subgroup" colspan="4" scope="colgroup">
+                    {{ operation.name }} <span>({{ operation.unit }})</span>
+                  </th>
+                }
               }
             }
           </tr>
           <tr class="parameter-label-row">
             @for (group of machineGroups(); track group.machineCode) {
               @for (operation of group.operations; track operation.name) {
-                <th class="parameter-min" scope="col">Min</th>
-                <th class="parameter-actual" scope="col">Actual</th>
-                <th class="parameter-max" scope="col">Max</th>
-                <th class="parameter-status-heading" scope="col">Status</th>
+                @if (!operation.statusOnly) {
+                  <th class="parameter-min" scope="col">Min</th>
+                  <th class="parameter-actual" scope="col">Actual</th>
+                  <th class="parameter-max" scope="col">Max</th>
+                  <th class="parameter-status-heading" scope="col">Status</th>
+                }
               }
             }
           </tr>
@@ -228,20 +230,34 @@
                 @let station = machineFor(row, group.machineCode);
                 @for (operationName of group.operations; track operationName.name) {
                   @let value = operationFor(station, operationName.name);
-                  <td class="parameter-min">{{ value?.min ?? '—' }}</td>
-                  <td class="parameter-actual actual-value">{{ value?.actual ?? '—' }}</td>
-                  <td class="parameter-max">{{ value?.max ?? '—' }}</td>
-                  <td class="parameter-status-cell">
-                    @if (value) {
-                      <span
-                        class="parameter-status"
-                        [class.parameter-status--ok]="value.status === 1"
-                        [class.parameter-status--reject]="value.status === 2"
-                      >{{ statusLabel(value.status) }}</span>
-                    } @else {
-                      <span class="not-applicable">—</span>
-                    }
-                  </td>
+                  @if (operationName.statusOnly) {
+                    <td class="parameter-status-cell">
+                      @if (value) {
+                        <span
+                          class="parameter-status"
+                          [class.parameter-status--ok]="value.status === 1"
+                          [class.parameter-status--reject]="value.status === 2"
+                        >{{ statusLabel(value.status) }}</span>
+                      } @else {
+                        <span class="not-applicable">—</span>
+                      }
+                    </td>
+                  } @else {
+                    <td class="parameter-min">{{ value?.min ?? '—' }}</td>
+                    <td class="parameter-actual actual-value">{{ value?.actual ?? '—' }}</td>
+                    <td class="parameter-max">{{ value?.max ?? '—' }}</td>
+                    <td class="parameter-status-cell">
+                      @if (value) {
+                        <span
+                          class="parameter-status"
+                          [class.parameter-status--ok]="value.status === 1"
+                          [class.parameter-status--reject]="value.status === 2"
+                        >{{ statusLabel(value.status) }}</span>
+                      } @else {
+                        <span class="not-applicable">—</span>
+                      }
+                    </td>
+                  }
                 }
               }
             </tr>

@@ -25,18 +25,20 @@
   >
     @for (operation of operations(); track operation.name) {
       <section class="machine-operation" [attr.aria-label]="operation.name">
-        <div class="machine-measurement">
-          <span>{{ measurementLabel(operation, 'MIN') }}</span>
-          <strong>{{ operation.min ?? '—' }}</strong>
-        </div>
-        <div class="machine-measurement">
-          <span>{{ measurementLabel(operation, 'ACTUAL') }}</span>
-          <strong>{{ operation.actual ?? '—' }}</strong>
-        </div>
-        <div class="machine-measurement">
-          <span>{{ measurementLabel(operation, 'MAX') }}</span>
-          <strong>{{ operation.max ?? '—' }}</strong>
-        </div>
+        @if (!operation.statusOnly) {
+          <div class="machine-measurement">
+            <span>{{ measurementLabel(operation, 'MIN') }}</span>
+            <strong>{{ operation.min ?? '—' }}</strong>
+          </div>
+          <div class="machine-measurement">
+            <span>{{ measurementLabel(operation, 'ACTUAL') }}</span>
+            <strong>{{ operation.actual ?? '—' }}</strong>
+          </div>
+          <div class="machine-measurement">
+            <span>{{ measurementLabel(operation, 'MAX') }}</span>
+            <strong>{{ operation.max ?? '—' }}</strong>
+          </div>
+        }
         <div class="machine-operation__status">
           <span>{{ operation.name }} STATUS</span>
           @switch (operation.status) {

@@ -15,10 +15,23 @@
   transition: margin-left 180ms ease;
 }
 
+.workspace--dashboard {
+  background: var(--color-welcome-gradient);
+}
+
+.workspace--dashboard .workspace__content {
+  min-height: calc(100vh - 107px);
+}
+
+.workspace--dashboard .workspace-footer {
+  color: #d3dcff;
+}
+
 .workspace--assembly {
   background: #29c7cc;
-  padding-right: 24px;
-  padding-left: 24px;
+  padding-top: 5px;
+  padding-right: 10px;
+  padding-left: 10px;
 }
 
 .workspace--reports {
@@ -68,6 +81,7 @@
   }
 
   .workspace--assembly {
+    padding-top: 0;
     padding-right: 12px;
     padding-left: 12px;
   }

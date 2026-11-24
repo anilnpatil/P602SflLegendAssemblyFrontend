@@ -7,12 +7,10 @@
     />
   } @else {
     <section class="assembly-heading" aria-labelledby="assembly-title">
-      <div>
-        <span class="eyebrow"><span aria-hidden="true"></span> LIVE PRODUCTION</span>
+      <div>        
         <h1 id="assembly-title">Assembly live details</h1>
       </div>
-      <div class="assembly-heading__meta">
-        <span class="assembly-heading__refresh">Auto refresh · 5 sec</span>
+      <div class="assembly-heading__meta">        
         <span class="assembly-heading__updated">
           Last updated
           <strong>{{ lastUpdated() ? (lastUpdated() | date: 'mediumTime') : 'Waiting for data' }}</strong>

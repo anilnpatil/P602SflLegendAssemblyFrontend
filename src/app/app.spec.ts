@@ -23,6 +23,8 @@ const machineStatuses: MachineStatus[] = [
     airGauge2Actual: null,
     airGauge2Max: null,
     airGauge2Status: 2,
+    outerGuideStatus: 1,
+    innerGuideStatus: 2,
     outerDiaMin: null,
     outerDiaActual: null,
     outerDiaMax: null,
@@ -39,6 +41,15 @@ const machineStatuses: MachineStatus[] = [
     actualDisplacement: null,
     maxDisplacement: null,
     displacementStatus: null,
+    hole1Status: null,
+    hole2Status: null,
+    hole3Status: null,
+    hole4Status: null,
+    hole5Status: null,
+    hole6Status: null,
+    hole7Status: null,
+    hole8Status: null,
+    holeStatus: null,
     okCount: 15,
     notOkCount: 0,
     totalPartCount: 15,
@@ -62,6 +73,8 @@ const machineStatuses: MachineStatus[] = [
     airGauge2Actual: null,
     airGauge2Max: null,
     airGauge2Status: null,
+    outerGuideStatus: null,
+    innerGuideStatus: null,
     outerDiaMin: null,
     outerDiaActual: null,
     outerDiaMax: null,
@@ -78,6 +91,15 @@ const machineStatuses: MachineStatus[] = [
     actualDisplacement: null,
     maxDisplacement: null,
     displacementStatus: null,
+    hole1Status: null,
+    hole2Status: null,
+    hole3Status: null,
+    hole4Status: null,
+    hole5Status: null,
+    hole6Status: null,
+    hole7Status: null,
+    hole8Status: null,
+    holeStatus: null,
     okCount: 14,
     notOkCount: 1,
     totalPartCount: 15,
@@ -101,6 +123,8 @@ const machineStatuses: MachineStatus[] = [
     airGauge2Actual: null,
     airGauge2Max: null,
     airGauge2Status: null,
+    outerGuideStatus: null,
+    innerGuideStatus: null,
     outerDiaMin: null,
     outerDiaActual: null,
     outerDiaMax: null,
@@ -117,6 +141,15 @@ const machineStatuses: MachineStatus[] = [
     actualDisplacement: null,
     maxDisplacement: null,
     displacementStatus: null,
+    hole1Status: null,
+    hole2Status: null,
+    hole3Status: null,
+    hole4Status: null,
+    hole5Status: null,
+    hole6Status: null,
+    hole7Status: null,
+    hole8Status: null,
+    holeStatus: null,
     okCount: null,
     notOkCount: null,
     totalPartCount: null,
@@ -158,7 +191,9 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.welcome-panel h1')?.textContent).toContain('Dashboard');
+    expect(compiled.querySelector('.dashboard__copy h1')?.textContent).toContain('Dashboard');
+    expect(compiled.querySelector('.welcome-panel')).toBeNull();
+    expect(compiled.querySelectorAll('.dashboard-image img').length).toBe(2);
     expect(compiled.querySelector('.topbar__title')?.textContent).toContain('SFL LEGEND ASSEMBLY');
     expect(compiled.querySelector('.brand__logo')?.getAttribute('alt')).toBe('TVS');
     expect(compiled.querySelector('.sidebar')?.classList.contains('sidebar--collapsed')).toBe(true);
@@ -176,12 +211,14 @@ describe('App', () => {
     assemblyLink.click();
     fixture.detectChanges();
     await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    fixture.detectChanges();
 
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.assembly-heading h1')?.textContent).toContain('Assembly');
-    expect(compiled.querySelectorAll('.machine-card').length).toBe(8);
+    expect(compiled.querySelectorAll('.machine-card').length).toBe(10);
     expect(
-      Array.from(compiled.querySelectorAll('.machine-card h2')).map((heading) =>
+      Array.from(compiled.querySelectorAll('.machine-card__title')).map((heading) =>
         heading.textContent?.trim(),
       ),
     ).toEqual([
@@ -191,17 +228,19 @@ describe('App', () => {
       'Machine40ALh',
       'Machine40ARh',
       'Machine40B',
-      'Machine50Lh',
-      'Machine50Rh',
+      'Machine50ALh',
+      'Machine50ARh',
+      'Machine50BLh',
+      'Machine50BRh',
     ]);
-    expect(compiled.querySelector('.machine-card h2')?.textContent).toContain('Machine30ALh');
+    expect(compiled.querySelector('.machine-card__title')?.textContent).toContain('Machine30ALh');
     expect(compiled.querySelector('.machine-status--ok')?.textContent).toContain('OK');
     expect(compiled.querySelector('.machine-status--not-ok')?.textContent).toContain('FAIL');
     expect(compiled.querySelector('.machine-card__barcode-label')?.textContent).toContain(
       'QR Code NO',
     );
     const waitingMachineCard = Array.from(compiled.querySelectorAll('.machine-card')).find(
-      (card) => card.querySelector('h2')?.textContent?.includes('Machine30B'),
+      (card) => card.querySelector('.machine-card__title')?.textContent?.includes('Machine30B'),
     );
     expect(waitingMachineCard?.querySelector('.barcode-chip--waiting')?.textContent).toContain(
       'Waiting for barcode',
@@ -211,13 +250,19 @@ describe('App', () => {
       waitingMachineCard?.querySelector('.machine-card__operations--stacked'),
     ).toBeTruthy();
     const machine40aCard = Array.from(compiled.querySelectorAll('.machine-card')).find(
-      (card) => card.querySelector('h2')?.textContent?.includes('Machine40ALh'),
+      (card) => card.querySelector('.machine-card__title')?.textContent?.includes('Machine40ALh'),
     );
     expect(machine40aCard?.querySelectorAll('.machine-measurement strong').length).toBe(12);
     expect(machine40aCard?.textContent).toContain('OUTER DIA ACTUAL VALUE (MM)');
     expect(machine40aCard?.querySelectorAll('.machine-operation').length).toBe(4);
+    const machine50bCard = Array.from(compiled.querySelectorAll('.machine-card')).find(
+      (card) => card.querySelector('.machine-card__title')?.textContent?.includes('Machine50BLh'),
+    );
+    expect(machine50bCard?.querySelectorAll('.machine-operation').length).toBe(8);
+    expect(machine50bCard?.querySelector('.machine-card__operations--stacked')).toBeNull();
     expect(compiled.querySelector('.operation-status--pass')).toBeTruthy();
     expect(compiled.querySelector('.operation-status--fail')).toBeTruthy();
+    expect(compiled.querySelector('.operation-status--unknown')).toBeTruthy();
   });
 
   it('should show separate workspaces for Production, Quality, and Reports', async () => {
@@ -236,8 +281,10 @@ describe('App', () => {
           fixture.nativeElement.querySelector('.production-summary h1')?.textContent,
         ).toContain('Production summary');
         expect(fixture.nativeElement.querySelectorAll('.filter-field').length).toBeGreaterThan(0);
-      } else {
+      } else if (page === 'Quality') {
         expect(fixture.nativeElement.querySelector('.section-page h1')?.textContent).toContain(page);
+      } else {
+        expect(fixture.nativeElement.querySelector('.overall-report')).toBeTruthy();
       }
       expect(fixture.nativeElement.querySelector('.machine-card')).toBeNull();
     }
